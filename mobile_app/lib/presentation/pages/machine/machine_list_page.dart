@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../blocs/machine/machine_bloc.dart';
 import '../../blocs/machine/machine_event.dart';
 import '../../blocs/machine/machine_state.dart';
+import '../../../core/constants/app_colors.dart';
 import 'machine_detail_page.dart';
 import 'add_machine_page.dart';
 
@@ -20,25 +21,31 @@ class _MachineListPageState extends State<MachineListPage> {
   @override
   void initState() {
     super.initState();
-    context.read<MachineBloc>().add(LoadMachines());
+    try {
+      context.read<MachineBloc>().add(LoadMachines());
+    } catch (e) {
+      // BLoC not provided
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Machines'),
-        backgroundColor: const Color(0xFF1E40AF),
+        title: const Text(
+          'เครื่องจักร',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_circle_outline),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const AddMachinePage(),
-                ),
+                MaterialPageRoute(builder: (context) => const AddMachinePage()),
               );
             },
           ),
@@ -47,16 +54,27 @@ class _MachineListPageState extends State<MachineListPage> {
       body: Column(
         children: [
           // Search Bar
-          Padding(
+          Container(
             padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 4,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Search machines...',
-                prefixIcon: const Icon(Icons.search),
+                hintText: 'ค้นหาเครื่องจักร...',
+                hintStyle: TextStyle(color: AppColors.textHint),
+                prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear),
+                        icon: const Icon(Icons.clear, color: AppColors.textSecondary),
                         onPressed: () {
                           _searchController.clear();
                           context.read<MachineBloc>().add(LoadMachines());
@@ -65,7 +83,11 @@ class _MachineListPageState extends State<MachineListPage> {
                     : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
                 ),
+                filled: true,
+                fillColor: AppColors.background,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
               onSubmitted: (value) {
                 context.read<MachineBloc>().add(SearchMachines(query: value));
@@ -74,19 +96,21 @@ class _MachineListPageState extends State<MachineListPage> {
           ),
 
           // Status Filter
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            color: Colors.white,
             child: Row(
               children: [
-                _buildFilterChip('All', null),
+                _buildFilterChip('ทั้งหมด', null),
                 const SizedBox(width: 8),
-                _buildFilterChip('Active', 'active'),
+                _buildFilterChip('ใช้งาน', 'active'),
                 const SizedBox(width: 8),
-                _buildFilterChip('Under Repair', 'under_repair'),
+                _buildFilterChip('ซ่อมบำรุง', 'under_repair'),
+                const SizedBox(width: 8),
+                _buildFilterChip('ไม่ใช้งาน', 'inactive'),
               ],
             ),
           ),
-          const SizedBox(height: 8),
 
           // Machine List
           Expanded(
@@ -101,15 +125,22 @@ class _MachineListPageState extends State<MachineListPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                        Icon(Icons.error_outline, size: 64, color: AppColors.error),
                         const SizedBox(height: 16),
-                        Text(state.message),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () {
-                            context.read<MachineBloc>().add(LoadMachines());
-                          },
-                          child: const Text('Retry'),
+                        Text(
+                          state.message,
+                          style: const TextStyle(fontSize: 16),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton.icon(
+                          onPressed: () => context.read<MachineBloc>().add(LoadMachines()),
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('ลองใหม่'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                          ),
                         ),
                       ],
                     ),
@@ -118,78 +149,32 @@ class _MachineListPageState extends State<MachineListPage> {
 
                 if (state is MachineListLoaded) {
                   if (state.machines.isEmpty) {
-                    return const Center(
+                    return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.inventory_2_outlined, size: 48, color: Colors.grey),
-                          SizedBox(height: 16),
-                          Text('No machines found'),
+                          Icon(Icons.precision_manufacturing_outlined, size: 64, color: AppColors.textHint),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'ไม่พบเครื่องจักร',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
                         ],
                       ),
                     );
                   }
 
                   return RefreshIndicator(
-                    onRefresh: () async {
-                      context.read<MachineBloc>().add(LoadMachines());
-                    },
+                    onRefresh: () async => context.read<MachineBloc>().add(LoadMachines()),
                     child: ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.all(16),
                       itemCount: state.machines.length,
                       itemBuilder: (context, index) {
                         final machine = state.machines[index];
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: _getStatusColor(machine.status),
-                              child: Icon(
-                                Icons.precision_manufacturing,
-                                color: Colors.white,
-                              ),
-                            ),
-                            title: Text(
-                              machine.name,
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('${machine.model} • ${machine.serialNumber}'),
-                                Text(
-                                  machine.location,
-                                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                                ),
-                              ],
-                            ),
-                            trailing: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: _getStatusColor(machine.status).withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                machine.statusLabel,
-                                style: TextStyle(
-                                  color: _getStatusColor(machine.status),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => MachineDetailPage(
-                                    machineId: machine.machineId,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        );
+                        return _buildMachineCard(machine);
                       },
                     ),
                   );
@@ -204,34 +189,138 @@ class _MachineListPageState extends State<MachineListPage> {
     );
   }
 
+  Widget _buildMachineCard(dynamic machine) {
+    final statusColor = _getStatusColor(machine.status);
+    
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MachineDetailPage(machineId: machine.machineId),
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: statusColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.precision_manufacturing,
+                  color: statusColor,
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      machine.name,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${machine.model} • ${machine.serialNumber}',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(Icons.location_on_outlined, size: 14, color: AppColors.textHint),
+                        const SizedBox(width: 4),
+                        Text(
+                          machine.location,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textHint,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: statusColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  machine.statusLabel,
+                  style: TextStyle(
+                    color: statusColor,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildFilterChip(String label, String? status) {
     final isSelected = _selectedStatus == status;
-    return FilterChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (selected) {
-        setState(() {
-          _selectedStatus = status;
-        });
-        context.read<MachineBloc>().add(LoadMachines(status: status));
-      },
-      selectedColor: const Color(0xFF1E40AF).withOpacity(0.2),
-      checkmarkColor: const Color(0xFF1E40AF),
+    return Expanded(
+      child: FilterChip(
+        label: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: isSelected ? AppColors.primary : AppColors.textSecondary,
+          ),
+        ),
+        selected: isSelected,
+        onSelected: (selected) {
+          setState(() => _selectedStatus = status);
+          context.read<MachineBloc>().add(LoadMachines(status: status));
+        },
+        selectedColor: AppColors.primary.withOpacity(0.1),
+        checkmarkColor: AppColors.primary,
+        side: BorderSide(
+          color: isSelected ? AppColors.primary : AppColors.border,
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+      ),
     );
   }
 
   Color _getStatusColor(String status) {
     switch (status) {
       case 'active':
-        return Colors.green;
+        return AppColors.success;
       case 'inactive':
-        return Colors.grey;
+        return AppColors.textHint;
       case 'under_repair':
-        return Colors.orange;
+        return AppColors.warning;
       case 'disposed':
-        return Colors.red;
+        return AppColors.error;
       default:
-        return Colors.grey;
+        return AppColors.textHint;
     }
   }
 

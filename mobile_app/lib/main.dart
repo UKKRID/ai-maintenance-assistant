@@ -8,6 +8,7 @@ import 'presentation/blocs/repair/repair_bloc.dart';
 import 'presentation/blocs/pm_task/pm_task_bloc.dart';
 import 'presentation/blocs/dashboard/dashboard_bloc.dart';
 import 'presentation/blocs/ai/ai_bloc.dart';
+import 'presentation/blocs/spare_part/spare_part_bloc.dart';
 import 'presentation/pages/auth/login_page.dart';
 import 'data/repositories/auth_repository.dart';
 import 'data/datasources/remote/auth_remote_datasource.dart';
@@ -21,6 +22,8 @@ import 'data/repositories/dashboard_repository.dart';
 import 'data/datasources/remote/dashboard_remote_datasource.dart';
 import 'data/repositories/ai_repository.dart';
 import 'data/datasources/remote/ai_remote_datasource.dart';
+import 'data/repositories/spare_part_repository.dart';
+import 'data/datasources/remote/spare_part_remote_datasource.dart';
 import 'services/api/api_client.dart';
 
 void main() {
@@ -66,6 +69,11 @@ class MyApp extends StatelessWidget {
             remoteDataSource: AiRemoteDataSource(apiClient: apiClient),
           ),
         ),
+        RepositoryProvider(
+          create: (_) => SparePartRepository(
+            remoteDataSource: SparePartRemoteDataSource(apiClient: apiClient),
+          ),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -97,6 +105,11 @@ class MyApp extends StatelessWidget {
           BlocProvider(
             create: (context) => AiBloc(
               repository: context.read<AiRepository>(),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => SparePartBloc(
+              repository: context.read<SparePartRepository>(),
             ),
           ),
         ],

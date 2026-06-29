@@ -134,7 +134,10 @@ class _PmSchedulePageState extends State<PmSchedulePage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => PmDetailPage(pmId: task.pmId),
+                                  builder: (context) => BlocProvider.value(
+                                    value: context.read<PmTaskBloc>(),
+                                    child: PmDetailPage(pmId: task.pmId),
+                                  ),
                                 ),
                               );
                             },

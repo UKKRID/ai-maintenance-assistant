@@ -38,8 +38,8 @@ class ApiClient {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     };
-    if (_token != null) {
-      headers['Authorization'] = 'Bearer $_token';
+    if (token != null) {
+      headers['Authorization'] = 'Bearer $token';
     }
     return headers;
   }

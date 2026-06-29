@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:html' as html;
+import 'package:web/web.dart' as web;
 import '../datasources/remote/auth_remote_datasource.dart';
 import '../models/user_model.dart';
 import '../../domain/entities/user_entity.dart';
@@ -36,12 +36,12 @@ class AuthRepository {
       ApiClient.setToken(result.accessToken);
 
       // Save to localStorage (for web)
-      html.window.localStorage['access_token'] = result.accessToken;
-      html.window.localStorage['refresh_token'] = result.refreshToken;
-      html.window.localStorage['user_id'] = result.user.userId;
-      html.window.localStorage['user_email'] = result.user.email;
-      html.window.localStorage['user_fullname'] = result.user.fullName;
-      html.window.localStorage['user_role'] = result.user.role;
+      web.window.localStorage.setItem('access_token', result.accessToken);
+      web.window.localStorage.setItem('refresh_token', result.refreshToken);
+      web.window.localStorage.setItem('user_id', result.user.userId);
+      web.window.localStorage.setItem('user_email', result.user.email);
+      web.window.localStorage.setItem('user_fullname', result.user.fullName);
+      web.window.localStorage.setItem('user_role', result.user.role);
 
       return result;
     } catch (e) {
@@ -69,12 +69,12 @@ class AuthRepository {
       _currentUser = result.user;
 
       // Save to localStorage (for web)
-      html.window.localStorage['access_token'] = result.accessToken;
-      html.window.localStorage['refresh_token'] = result.refreshToken;
-      html.window.localStorage['user_id'] = result.user.userId;
-      html.window.localStorage['user_email'] = result.user.email;
-      html.window.localStorage['user_fullname'] = result.user.fullName;
-      html.window.localStorage['user_role'] = result.user.role;
+      web.window.localStorage.setItem('access_token', result.accessToken);
+      web.window.localStorage.setItem('refresh_token', result.refreshToken);
+      web.window.localStorage.setItem('user_id', result.user.userId);
+      web.window.localStorage.setItem('user_email', result.user.email);
+      web.window.localStorage.setItem('user_fullname', result.user.fullName);
+      web.window.localStorage.setItem('user_role', result.user.role);
 
       return result;
     } catch (e) {
@@ -83,7 +83,7 @@ class AuthRepository {
   }
 
   Future<void> refreshToken() async {
-    final storedRefreshToken = html.window.localStorage['refresh_token'];
+    final storedRefreshToken = web.window.localStorage.getItem('refresh_token');
     if (storedRefreshToken == null) {
       throw AuthException(message: 'ไม่มี Refresh Token');
     }
@@ -91,7 +91,7 @@ class AuthRepository {
     try {
       final result = await _remoteDataSource.refreshToken(storedRefreshToken);
       _accessToken = result.accessToken;
-      html.window.localStorage['access_token'] = result.accessToken;
+      web.window.localStorage.setItem('access_token', result.accessToken);
     } catch (e) {
       throw AuthException(message: 'Refresh Token ไม่สำเร็จ: ${e.toString()}');
     }
@@ -111,12 +111,12 @@ class AuthRepository {
       // Clear global token
       ApiClient.setToken(null);
       
-      html.window.localStorage.remove('access_token');
-      html.window.localStorage.remove('refresh_token');
-      html.window.localStorage.remove('user_id');
-      html.window.localStorage.remove('user_email');
-      html.window.localStorage.remove('user_fullname');
-      html.window.localStorage.remove('user_role');
+      web.window.localStorage.removeItem('access_token');
+      web.window.localStorage.removeItem('refresh_token');
+      web.window.localStorage.removeItem('user_id');
+      web.window.localStorage.removeItem('user_email');
+      web.window.localStorage.removeItem('user_fullname');
+      web.window.localStorage.removeItem('user_role');
     }
   }
 
@@ -139,17 +139,17 @@ class AuthRepository {
   }
 
   Future<void> _restoreFromStorage() async {
-    final accessToken = html.window.localStorage['access_token'];
+    final accessToken = web.window.localStorage.getItem('access_token');
     if (accessToken != null) {
       _accessToken = accessToken;
       
       // Set global token
       ApiClient.setToken(accessToken);
 
-      final userId = html.window.localStorage['user_id'];
-      final email = html.window.localStorage['user_email'];
-      final fullName = html.window.localStorage['user_fullname'];
-      final role = html.window.localStorage['user_role'];
+      final userId = web.window.localStorage.getItem('user_id');
+      final email = web.window.localStorage.getItem('user_email');
+      final fullName = web.window.localStorage.getItem('user_fullname');
+      final role = web.window.localStorage.getItem('user_role');
 
       if (userId != null && email != null && fullName != null && role != null) {
         _currentUser = UserModel(

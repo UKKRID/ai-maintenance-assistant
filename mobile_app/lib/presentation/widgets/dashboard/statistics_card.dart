@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_colors.dart';
 
 class StatisticsCard extends StatelessWidget {
   final int totalMachines;
@@ -32,9 +33,30 @@ class StatisticsCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Statistics Overview',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.analytics,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  'สถิติภาพรวม',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             Row(
@@ -42,20 +64,20 @@ class StatisticsCard extends StatelessWidget {
                 Expanded(
                   child: _buildStatItem(
                     icon: Icons.precision_manufacturing,
-                    label: 'Machines',
+                    label: 'เครื่องจักร',
                     value: '$totalMachines',
-                    subtitle: '$activeMachines active',
-                    color: Colors.blue,
+                    subtitle: '$activeMachines ใช้งาน',
+                    color: AppColors.primary,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildStatItem(
                     icon: Icons.build,
-                    label: 'Repairs',
+                    label: 'งานซ่อม',
                     value: '$totalRepairs',
-                    subtitle: '$pendingRepairs pending',
-                    color: Colors.orange,
+                    subtitle: '$pendingRepairs รอดำเนินการ',
+                    color: AppColors.warning,
                   ),
                 ),
               ],
@@ -68,18 +90,18 @@ class StatisticsCard extends StatelessWidget {
                     icon: Icons.calendar_today,
                     label: 'PM Tasks',
                     value: '$totalPmTasks',
-                    subtitle: '$overduePmTasks overdue',
-                    color: Colors.green,
+                    subtitle: '$overduePmTasks เกินกำหนด',
+                    color: AppColors.success,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildStatItem(
                     icon: Icons.attach_money,
-                    label: 'Total Cost',
+                    label: 'ค่าใช้จ่าย',
                     value: '฿${totalCost.toStringAsFixed(0)}',
-                    subtitle: 'This month',
-                    color: Colors.purple,
+                    subtitle: 'เดือนนี้',
+                    color: AppColors.error,
                   ),
                 ),
               ],
@@ -98,20 +120,28 @@ class StatisticsCard extends StatelessWidget {
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            color.withOpacity(0.05),
+            color.withOpacity(0.1),
+          ],
+        ),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 8),
+          Icon(icon, color: color, size: 28),
+          const SizedBox(height: 12),
           Text(
             value,
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 24,
               fontWeight: FontWeight.bold,
               color: color,
             ),
@@ -120,15 +150,17 @@ class StatisticsCard extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
             ),
           ),
+          const SizedBox(height: 2),
           Text(
             subtitle,
-            style: TextStyle(
-              fontSize: 10,
-              color: Colors.grey[600],
+            style: const TextStyle(
+              fontSize: 11,
+              color: AppColors.textSecondary,
             ),
           ),
         ],

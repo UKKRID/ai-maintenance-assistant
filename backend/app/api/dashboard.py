@@ -106,6 +106,7 @@ async def get_dashboard_analytics(
     repair_chart = dashboard_service.repair_status_chart()
     monthly_cost = dashboard_service.monthly_cost_chart()
     pm_chart = dashboard_service.pm_status_chart()
+    repairs = dashboard_service.get_total_repairs()
 
     return DashboardAnalyticsResponse(
         period=period,
@@ -134,7 +135,7 @@ async def get_dashboard_analytics(
                 status="active", repair_count=2, health_score=90.0
             ),
         ],
-        total_repairs=repairs["total"] if hasattr(self, 'repairs') else 10,
+        total_repairs=repairs["total"],
         total_cost=25000.00,
         average_mttr=2.5,
         average_mtbf=45.0,
