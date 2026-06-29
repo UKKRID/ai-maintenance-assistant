@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../blocs/machine/machine_bloc.dart';
 import '../../blocs/machine/machine_event.dart';
 import '../../blocs/machine/machine_state.dart';
+import '../../../core/constants/app_colors.dart';
 import 'edit_machine_page.dart';
 
 class MachineDetailPage extends StatefulWidget {
@@ -24,9 +25,10 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Machine Detail'),
-        backgroundColor: const Color(0xFF1E40AF),
+        title: const Text('รายละเอียดเครื่องจักร', style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         actions: [
           IconButton(
@@ -41,7 +43,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.delete),
+            icon: const Icon(Icons.delete_outline),
             onPressed: _showDeleteDialog,
           ),
         ],
@@ -57,17 +59,20 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                  Icon(Icons.error_outline, size: 64, color: AppColors.error),
                   const SizedBox(height: 16),
-                  Text(state.message),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      context.read<MachineBloc>().add(
-                        LoadMachineDetail(machineId: widget.machineId),
-                      );
-                    },
-                    child: const Text('Retry'),
+                  Text(state.message, textAlign: TextAlign.center),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: () => context.read<MachineBloc>().add(
+                      LoadMachineDetail(machineId: widget.machineId),
+                    ),
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('ลองใหม่'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                    ),
                   ),
                 ],
               ),
@@ -76,145 +81,182 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
 
           if (state is MachineDetailLoaded) {
             final machine = state.machine;
+            final hasImage = machine.imageUrl != null && machine.imageUrl!.isNotEmpty;
+
             return SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header Card
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 30,
-                                backgroundColor: _getStatusColor(machine.status),
-                                child: const Icon(
-                                  Icons.precision_manufacturing,
-                                  size: 30,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                  // Image Section
+                  if (hasImage)
+                    Container(
+                      width: double.infinity,
+                      height: 250,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.05),
+                      ),
+                      child: Image.network(
+                        'http://localhost:8000${machine.imageUrl}',
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return _buildImagePlaceholder();
+                        },
+                      ),
+                    )
+                  else
+                    Container(
+                      width: double.infinity,
+                      height: 200,
+                      decoration: BoxDecoration(
+                        color: _getStatusColor(machine.status).withOpacity(0.05),
+                      ),
+                      child: _buildImagePlaceholder(machine.status),
+                    ),
+
+                  // Content
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Header Card
+                        Card(
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
                                   children: [
-                                    Text(
-                                      machine.name,
-                                      style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
+                                    Container(
+                                      width: 56,
+                                      height: 56,
+                                      decoration: BoxDecoration(
+                                        color: _getStatusColor(machine.status).withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Icon(
+                                        Icons.precision_manufacturing,
+                                        color: _getStatusColor(machine.status),
+                                        size: 32,
                                       ),
                                     ),
-                                    Text(
-                                      machine.model,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey[600],
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            machine.name,
+                                            style: const TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                              color: AppColors.textPrimary,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            machine.model,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              color: AppColors.textSecondary,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ],
                                 ),
-                              ),
+                                const SizedBox(height: 16),
+                                _buildStatusChip(machine.statusLabel, machine.status),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Info Card
+                        _buildCard(
+                          title: 'ข้อมูลเครื่องจักร',
+                          icon: Icons.info_outline,
+                          child: Column(
+                            children: [
+                              _buildInfoRow('หมายเลขเครื่อง', machine.serialNumber),
+                              _buildInfoRow('สถานที่ตั้ง', machine.location),
+                              _buildInfoRow('แผนก', machine.department ?? '-'),
+                              _buildInfoRow('วันที่ติดตั้ง', machine.installDate),
                             ],
                           ),
-                          const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: _getStatusColor(machine.status).withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              machine.statusLabel,
-                              style: TextStyle(
-                                color: _getStatusColor(machine.status),
-                                fontWeight: FontWeight.bold,
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Timestamps Card
+                        _buildCard(
+                          title: 'วันที่',
+                          icon: Icons.access_time,
+                          child: Column(
+                            children: [
+                              _buildInfoRow('สร้างเมื่อ', _formatDateTime(machine.createdAt)),
+                              _buildInfoRow('อัพเดทล่าสุด', _formatDateTime(machine.updatedAt)),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Action Buttons
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: AppColors.primary),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: OutlinedButton.icon(
+                                  onPressed: () {},
+                                  icon: const Icon(Icons.build, color: AppColors.primary),
+                                  label: const Text(
+                                    'งานซ่อม',
+                                    style: TextStyle(color: AppColors.primary),
+                                  ),
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Info Card
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Information',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: AppColors.primary),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: OutlinedButton.icon(
+                                  onPressed: () {},
+                                  icon: const Icon(Icons.calendar_today, color: AppColors.primary),
+                                  label: const Text(
+                                    'PM Tasks',
+                                    style: TextStyle(color: AppColors.primary),
+                                  ),
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 12),
-                          _buildInfoRow('Serial Number', machine.serialNumber),
-                          _buildInfoRow('Location', machine.location),
-                          _buildInfoRow('Department', machine.department ?? '-'),
-                          _buildInfoRow('Install Date', machine.installDate),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Timestamps Card
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Timestamps',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          _buildInfoRow('Created', _formatDateTime(machine.createdAt)),
-                          _buildInfoRow('Updated', _formatDateTime(machine.updatedAt)),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Action Buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () {
-                            // TODO: Navigate to repairs
-                          },
-                          icon: const Icon(Icons.build),
-                          label: const Text('View Repairs'),
+                          ],
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () {
-                            // TODO: Navigate to PM
-                          },
-                          icon: const Icon(Icons.calendar_today),
-                          label: const Text('View PM'),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -227,9 +269,65 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
     );
   }
 
+  Widget _buildImagePlaceholder([String? status]) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.precision_manufacturing_outlined,
+          size: 64,
+          color: status != null ? _getStatusColor(status).withOpacity(0.5) : AppColors.textHint,
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'ไม่มีรูปภาพ',
+          style: TextStyle(
+            fontSize: 16,
+            color: AppColors.textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCard({
+    required String title,
+    required IconData icon,
+    required Widget child,
+  }) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: AppColors.primary, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            child,
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildInfoRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -237,8 +335,8 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
             width: 120,
             child: Text(
               label,
-              style: TextStyle(
-                color: Colors.grey[600],
+              style: const TextStyle(
+                color: AppColors.textSecondary,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -246,7 +344,45 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(fontWeight: FontWeight.w500),
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusChip(String label, String status) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: _getStatusColor(status).withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: _getStatusColor(status).withOpacity(0.3),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: _getStatusColor(status),
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: TextStyle(
+              color: _getStatusColor(status),
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
             ),
           ),
         ],
@@ -261,15 +397,15 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'active':
-        return Colors.green;
+        return AppColors.success;
       case 'inactive':
-        return Colors.grey;
+        return AppColors.textHint;
       case 'under_repair':
-        return Colors.orange;
+        return AppColors.warning;
       case 'disposed':
-        return Colors.red;
+        return AppColors.error;
       default:
-        return Colors.grey;
+        return AppColors.textHint;
     }
   }
 
@@ -277,22 +413,25 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Machine'),
-        content: const Text('Are you sure you want to delete this machine?'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('ลบเครื่องจักร'),
+        content: const Text('คุณต้องการลบเครื่องจักรนี้ใช่หรือไม่?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('ยกเลิก'),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () {
-              context.read<MachineBloc>().add(
-                DeleteMachine(machineId: widget.machineId),
-              );
+              context.read<MachineBloc>().add(DeleteMachine(machineId: widget.machineId));
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('ลบ'),
           ),
         ],
       ),
