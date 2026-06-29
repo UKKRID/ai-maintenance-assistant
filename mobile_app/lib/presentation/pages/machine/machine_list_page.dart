@@ -192,6 +192,7 @@ class _MachineListPageState extends State<MachineListPage> {
 
   Widget _buildMachineCard(dynamic machine) {
     final statusColor = _getStatusColor(machine.status);
+    final hasImage = machine.imageUrl != null && machine.imageUrl!.isNotEmpty;
     
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -211,18 +212,27 @@ class _MachineListPageState extends State<MachineListPage> {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
+              // Image or Icon
               Container(
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.1),
+                  color: hasImage ? Colors.transparent : statusColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
+                  image: hasImage
+                      ? DecorationImage(
+                          image: NetworkImage('http://localhost:8000${machine.imageUrl}'),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
                 ),
-                child: Icon(
-                  Icons.precision_manufacturing,
-                  color: statusColor,
-                  size: 28,
-                ),
+                child: hasImage
+                    ? null
+                    : Icon(
+                        Icons.precision_manufacturing,
+                        color: statusColor,
+                        size: 28,
+                      ),
               ),
               const SizedBox(width: 16),
               Expanded(

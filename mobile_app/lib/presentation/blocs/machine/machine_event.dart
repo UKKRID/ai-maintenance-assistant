@@ -30,6 +30,7 @@ class CreateMachine extends MachineEvent {
   final String? department;
   final String installDate;
   final String status;
+  final String? imageUrl;
 
   CreateMachine({
     required this.name,
@@ -39,6 +40,7 @@ class CreateMachine extends MachineEvent {
     this.department,
     required this.installDate,
     this.status = 'active',
+    this.imageUrl,
   });
 }
 
@@ -51,6 +53,7 @@ class UpdateMachine extends MachineEvent {
   final String? department;
   final String? installDate;
   final String? status;
+  final String? imageUrl;
 
   UpdateMachine({
     required this.machineId,
@@ -61,6 +64,7 @@ class UpdateMachine extends MachineEvent {
     this.department,
     this.installDate,
     this.status,
+    this.imageUrl,
   });
 }
 

@@ -8,6 +8,7 @@ class MachineModel {
   final String installDate;
   final String status;
   final String? qrCode;
+  final String? imageUrl;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -21,6 +22,7 @@ class MachineModel {
     required this.installDate,
     required this.status,
     this.qrCode,
+    this.imageUrl,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -36,6 +38,7 @@ class MachineModel {
       installDate: json['install_date'] ?? '',
       status: json['status'] ?? 'active',
       qrCode: json['qr_code'],
+      imageUrl: json['image_url'],
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
     );
@@ -52,6 +55,7 @@ class MachineModel {
       'install_date': installDate,
       'status': status,
       'qr_code': qrCode,
+      'image_url': imageUrl,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };

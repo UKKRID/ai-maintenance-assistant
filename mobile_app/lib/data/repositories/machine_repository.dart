@@ -43,6 +43,7 @@ class MachineRepository {
     String? department,
     required String installDate,
     String status = 'active',
+    String? imageUrl,
   }) async {
     try {
       return await _remoteDataSource.createMachine(
@@ -53,6 +54,7 @@ class MachineRepository {
         department: department,
         installDate: installDate,
         status: status,
+        imageUrl: imageUrl,
       );
     } catch (e) {
       throw MachineException(message: 'เพิ่มเครื่องจักรไม่สำเร็จ: ${e.toString()}');
@@ -68,6 +70,7 @@ class MachineRepository {
     String? department,
     String? installDate,
     String? status,
+    String? imageUrl,
   }) async {
     try {
       return await _remoteDataSource.updateMachine(
@@ -79,6 +82,7 @@ class MachineRepository {
         department: department,
         installDate: installDate,
         status: status,
+        imageUrl: imageUrl,
       );
     } catch (e) {
       throw MachineException(message: 'แก้ไขเครื่องจักรไม่สำเร็จ: ${e.toString()}');

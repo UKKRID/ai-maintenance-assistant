@@ -50,6 +50,7 @@ class MachineRemoteDataSource {
     String? department,
     required String installDate,
     String status = 'active',
+    String? imageUrl,
   }) async {
     final response = await _apiClient.post(
       '/api/machines',
@@ -61,6 +62,7 @@ class MachineRemoteDataSource {
         'department': department,
         'install_date': installDate,
         'status': status,
+        'image_url': imageUrl,
       },
     );
     return MachineModel.fromJson(response);
@@ -75,6 +77,7 @@ class MachineRemoteDataSource {
     String? department,
     String? installDate,
     String? status,
+    String? imageUrl,
   }) async {
     final body = <String, dynamic>{};
     if (name != null) body['name'] = name;
@@ -84,6 +87,7 @@ class MachineRemoteDataSource {
     if (department != null) body['department'] = department;
     if (installDate != null) body['install_date'] = installDate;
     if (status != null) body['status'] = status;
+    if (imageUrl != null) body['image_url'] = imageUrl;
 
     final response = await _apiClient.put(
       '/api/machines/$machineId',

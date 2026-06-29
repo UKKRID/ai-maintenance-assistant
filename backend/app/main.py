@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 
 from app.config import settings
-from app.api import ai, auth, machine, repair, pm_task, spare_part, dashboard
+from app.api import ai, auth, machine, repair, pm_task, spare_part, dashboard, upload
 
 
 @asynccontextmanager
@@ -39,6 +40,12 @@ app.include_router(repair.router, prefix="/api/repairs", tags=["Repair Managemen
 app.include_router(pm_task.router, prefix="/api/pm-tasks", tags=["PM Task Management"])
 app.include_router(spare_part.router, prefix="/api/spare-parts", tags=["Spare Part Management"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"])
+app.include_router(upload.router, prefix="/api/upload", tags=["Upload"])
+
+# Static files for uploaded images
+import os
+os.makedirs("./uploads/images", exist_ok=True)
+app.mount("/uploads", StaticFiles(directory="./uploads"), name="uploads")
 
 
 @app.get("/health")

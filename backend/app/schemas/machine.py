@@ -19,6 +19,7 @@ class MachineCreate(BaseModel):
     department: Optional[str] = Field(None, max_length=100)
     install_date: date
     status: MachineStatus = MachineStatus.ACTIVE
+    image_url: Optional[str] = Field(None, max_length=500)
 
 
 class MachineUpdate(BaseModel):
@@ -29,6 +30,7 @@ class MachineUpdate(BaseModel):
     department: Optional[str] = Field(None, max_length=100)
     install_date: Optional[date] = None
     status: Optional[MachineStatus] = None
+    image_url: Optional[str] = Field(None, max_length=500)
 
 
 class MachineResponse(BaseModel):
@@ -41,6 +43,7 @@ class MachineResponse(BaseModel):
     install_date: date
     status: str
     qr_code: Optional[str] = None
+    image_url: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 

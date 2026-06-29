@@ -25,6 +25,7 @@ class MachineService:
                 "install_date": "2024-01-15",
                 "status": "active",
                 "qr_code": None,
+                "image_url": None,
                 "created_at": datetime.now(timezone.utc),
                 "updated_at": datetime.now(timezone.utc)
             },
@@ -38,6 +39,7 @@ class MachineService:
                 "install_date": "2023-06-20",
                 "status": "active",
                 "qr_code": None,
+                "image_url": None,
                 "created_at": datetime.now(timezone.utc),
                 "updated_at": datetime.now(timezone.utc)
             },
@@ -51,6 +53,7 @@ class MachineService:
                 "install_date": "2022-03-10",
                 "status": "under_repair",
                 "qr_code": None,
+                "image_url": None,
                 "created_at": datetime.now(timezone.utc),
                 "updated_at": datetime.now(timezone.utc)
             }
@@ -124,6 +127,7 @@ class MachineService:
             "install_date": str(data.install_date),
             "status": data.status.value,
             "qr_code": None,
+            "image_url": data.image_url,
             "created_at": now,
             "updated_at": now
         }
@@ -164,6 +168,8 @@ class MachineService:
             machine["install_date"] = str(data.install_date)
         if data.status is not None:
             machine["status"] = data.status.value
+        if data.image_url is not None:
+            machine["image_url"] = data.image_url
 
         machine["updated_at"] = datetime.now(timezone.utc)
 

@@ -72,6 +72,7 @@ class MachineBloc extends Bloc<MachineEvent, MachineState> {
         department: event.department,
         installDate: event.installDate,
         status: event.status,
+        imageUrl: event.imageUrl,
       );
 
       emit(MachineOperationSuccess(message: 'เพิ่มเครื่องจักรสำเร็จ'));
@@ -96,6 +97,7 @@ class MachineBloc extends Bloc<MachineEvent, MachineState> {
         department: event.department,
         installDate: event.installDate,
         status: event.status,
+        imageUrl: event.imageUrl,
       );
 
       emit(MachineOperationSuccess(message: 'แก้ไขเครื่องจักรสำเร็จ'));

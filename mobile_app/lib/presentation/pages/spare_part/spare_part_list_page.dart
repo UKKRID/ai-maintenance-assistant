@@ -173,13 +173,39 @@ class _SparePartListPageState extends State<SparePartListPage> {
                             itemCount: state.spareParts.length,
                             itemBuilder: (context, index) {
                               final part = state.spareParts[index];
+                              final hasImage = part.imageUrl != null && part.imageUrl!.isNotEmpty;
+                              
                               return Card(
                                 margin: const EdgeInsets.only(bottom: 8),
                                 child: ListTile(
-                                  leading: CircleAvatar(
-                                    backgroundColor: _getStockStatusColor(part.stockStatus),
-                                    child: const Icon(Icons.inventory, color: Colors.white),
-                                  ),
+                                  leading: hasImage
+                                      ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(8),
+                                          child: Image.network(
+                                            'http://localhost:8000${part.imageUrl}',
+                                            width: 48,
+                                            height: 48,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stackTrace) {
+                                              return Container(
+                                                width: 48,
+                                                height: 48,
+                                                decoration: BoxDecoration(
+                                                  color: _getStockStatusColor(part.stockStatus).withOpacity(0.1),
+                                                  borderRadius: BorderRadius.circular(8),
+                                                ),
+                                                child: Icon(
+                                                  Icons.inventory,
+                                                  color: _getStockStatusColor(part.stockStatus),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        )
+                                      : CircleAvatar(
+                                          backgroundColor: _getStockStatusColor(part.stockStatus),
+                                          child: const Icon(Icons.inventory, color: Colors.white),
+                                        ),
                                   title: Text(
                                     part.name,
                                     style: const TextStyle(fontWeight: FontWeight.bold),
