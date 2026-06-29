@@ -21,7 +21,12 @@ class _RepairListPageState extends State<RepairListPage> {
   @override
   void initState() {
     super.initState();
-    context.read<RepairBloc>().add(LoadRepairs());
+    try {
+      final state = context.read<RepairBloc>().state;
+      if (state is RepairInitial) {
+        context.read<RepairBloc>().add(LoadRepairs());
+      }
+    } catch (e) {}
   }
 
   @override

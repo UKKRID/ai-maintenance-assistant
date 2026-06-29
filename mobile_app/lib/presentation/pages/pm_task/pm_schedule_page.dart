@@ -21,7 +21,12 @@ class _PmSchedulePageState extends State<PmSchedulePage> {
   @override
   void initState() {
     super.initState();
-    context.read<PmTaskBloc>().add(LoadPmTasks());
+    try {
+      final state = context.read<PmTaskBloc>().state;
+      if (state is PmTaskInitial) {
+        context.read<PmTaskBloc>().add(LoadPmTasks());
+      }
+    } catch (e) {}
   }
 
   @override

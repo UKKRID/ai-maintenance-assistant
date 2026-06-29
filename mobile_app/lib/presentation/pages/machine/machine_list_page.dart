@@ -22,10 +22,11 @@ class _MachineListPageState extends State<MachineListPage> {
   void initState() {
     super.initState();
     try {
-      context.read<MachineBloc>().add(LoadMachines());
-    } catch (e) {
-      // BLoC not provided
-    }
+      final state = context.read<MachineBloc>().state;
+      if (state is MachineInitial) {
+        context.read<MachineBloc>().add(LoadMachines());
+      }
+    } catch (e) {}
   }
 
   @override

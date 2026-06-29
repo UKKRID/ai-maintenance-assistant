@@ -21,7 +21,12 @@ class _SparePartListPageState extends State<SparePartListPage> {
   @override
   void initState() {
     super.initState();
-    context.read<SparePartBloc>().add(LoadSpareParts());
+    try {
+      final state = context.read<SparePartBloc>().state;
+      if (state is SparePartInitial) {
+        context.read<SparePartBloc>().add(LoadSpareParts());
+      }
+    } catch (e) {}
   }
 
   @override
